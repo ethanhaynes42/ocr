@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counselor Course Selection Tool</title>
+    <style>
+        /* CSS Reset and Body Styles */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+       
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Headers and Titles */
+        h1 {
+            color: #007bff;
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        h2 {
+            color: #333;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 8px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #555;
+            font-size: 1.2rem;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        /* Input Styles */
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #444;
+        }
+        input[type="text"], input[type="email"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input[type="text"]:focus, input[type="email"]:focus, select:focus, textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+            outline: none;
+        }
+       
+        /* Class Grid */
+        .class-row {
+            display: grid;
+            grid-template-columns: 1.5fr repeat(4, 1.5fr);
+            gap: 10px;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .class-row.header {
+            font-weight: bold;
+            background-color: #f8f8f8;
+            border-bottom: 2px solid #ccc;
+            border-radius: 4px 4px 0 0;
+            padding: 10px 0;
+            margin-bottom: 5px;
+        }
+        .class-row strong {
+            padding-left: 5px;
+        }
+
+        /* OCR Disclaimer/Warning */
+        .disclaimer {
+            margin-top: 20px;
+            padding: 15px;
+            border-left: 5px solid #007bff;
+            background-color: #e9f7ff;
+            color: #0056b3;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        .disclaimer strong {
+            color: #0056b3;
+        }
+
+        /* OCR Upload Area */
+        .ocr-upload {
+            text-align: center;
+            padding: 25px;
+            background-color: #e9f7ff;
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        #ocrInput {
+            margin-bottom: 15px;
+        }
+        #ocrResult {
+            padding: 10px;
+            background-color: #f0f8ff;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: none; /* Hidden until triggered */
+            text-align: left;
+            word-break: break-all;
+        }
+       
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+       
+        /* Buttons */
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        .submit-button {
+            background-color: #28a745; /* Green for submission */
+            color: white;
+            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
+        }
+        .submit-button:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
+        .reset-button {
+            background-color: #dc3545; /* Red for reset */
+            color: white;
+        }
+        .reset-button:hover {
+            background-color: #c82333;
+        }
+        .ocr-button {
+            background-color: #007bff;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 123, 255, 0.3);
+        }
+        .ocr-button:hover {
+            background-color: #0056b3;
+        }
+        .ocr-button:disabled {
+            background-color: #a0c3ff;
+            cursor: not-allowed;
+        }
+
+        /* Success Message */
+        #formSuccessMessage {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            .class-row {
+                grid-template-columns: 1fr; /* Stack columns on small screens */
+                border-bottom: none;
+                padding: 5px 0;
+            }
+            .class-row.header {
+                display: none; /* Hide header on mobile */
+            }
+            .class-row label {
+                margin-top: 10px;
+                background-color: #f8f8f8;
+                padding: 5px;
+                border-radius: 4px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .form-buttons {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1><span style="font-size: 1.5em;">🧑‍🏫</span> Counselor Course Selection & Planning Tool</h1>
+
+    <div class="disclaimer">
+        <strong>OCR Feature Active:</strong> Upload a high school plan/schedule image below. The Gemini model will securely extract the data and use it to auto-fill the form beneath.
+    </div>
+
+    <!-- OCR / Image Upload Section -->
+    <div class="form-section">
+        <h2>📷 OCR Student Schedule Upload</h2>
+        <div class="ocr-upload">
+            <input type="file" id="ocrInput" accept="image/*">
+            <button type="button" class="ocr-button" id="ocrButton" onclick="processOCR()">Process Schedule Image</button>
+            <div id="ocrResult"></div>
+        </div>
+    </div>
+   
+    <hr style="border-top: 1px solid #007bff;">
+
+    <!-- Manual Entry Form (Sends Email via Formspree) -->
+    <form id="courseForm" action="https://formspree.io/f/xzznvqld" method="POST">
+        <h2>📝 Manual 4-Year Plan Entry (Auto-Filled by OCR)</h2>
+
+        <!-- Student/Counselor Info -->
+        <div class="form-section">
+            <h3>Student & Contact Information</h3>
+            <label for="studentName">Student Full Name:</label>
+            <input type="text" id="studentName" name="Student Name" placeholder="Jane Doe" required>
+
+            <label for="counselorEmail">Counselor/Staff Email (This is where the plan will be sent):</label>
+            <input type="email" id="counselorEmail" name="_replyto" placeholder="counselor@school.edu" required>
+        </div>
+
+        <!-- 4-Year Plan Table -->
+        <div class="form-section">
+            <h3>Course Selections</h3>
+            <div class="class-row header">
+                <strong>Subject Area</strong>
+                <strong>9th Grade</strong>
+                <strong>10th Grade</strong>
+                <strong>11th Grade</strong>
+                <strong>12th Grade</strong>
+            </div>
+
+            <div id="planTableBody">
+                <!-- Rows will be injected by the script -->
+            </div>
+           
+            <label for="summerSchool">Additional Notes (e.g., Summer School, Extracurriculars, Career Path):</label>
+            <input type="text" id="summerSchool" name="Additional Notes" placeholder="e.g., Taking Health in Summer 2026; plans to major in Engineering">
+        </div>
+       
+        <div id="formSuccessMessage">
+            ✅ Success! The 4-Year Plan has been submitted to the counselor's email.
+        </div>
+
+        <div class="form-buttons">
+            <button type="reset" class="reset-button">Clear Form</button>
+            <button type="submit" class="submit-button">Submit Plan to Counselor</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // --- API Configuration ---
+
+    // API Key is handled securely by the environment. We keep it empty for runtime substitution.
+    const apiKey = "AIzaSyD8FlGYEvPMuPnHSGxIrHgOljCg_eeVPnE";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+    // --- Utility Functions for API Calls ---
+
+    /**
+     * Implements exponential backoff for API retries.
+     * @param {number} attempt - Current retry attempt (starts at 0).
+     */
+    function sleep(attempt) {
+        const delay = Math.pow(2, attempt) * 100 + Math.random() * 100;
+        return new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    /**
+     * Safely attempts an API call with retries.
+     */
+    async function fetchWithRetry(url, options, maxRetries = 3) {
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+                const response = await fetch(url, options);
+                if (response.ok) {
+                    return response.json();
+                } else if (response.status === 429 || response.status >= 500) {
+                    // Too many requests or Server error - retry
+                    if (attempt < maxRetries - 1) {
+                        await sleep(attempt);
+                        continue;
+                    }
+                }
+                // Handle non-retryable errors, trying to get the error message
+                let errorDetails = `Status: ${response.status}`;
+                try {
+                    const errorJson = await response.json();
+                    // Log the full error response for debugging
+                    console.error("Non-OK API Response Body:", errorJson);
+                    errorDetails += `, Details: ${errorJson.error?.message || JSON.stringify(errorJson)}`;
+                } catch {
+                    // If JSON fails, just use the status
+                }
+                throw new Error(`API failed. ${errorDetails}`);
+
+            } catch (error) {
+                if (attempt < maxRetries - 1) {
+                    console.error(`Attempt ${attempt + 1} failed. Retrying...`, error);
+                    await sleep(attempt);
+                } else {
+                    // On final failure, throw the original error or a clear message
+                    const finalError = error.message || "Unknown network or API error.";
+                    throw new Error(`Final API attempt failed: ${finalError}`);
+                }
+            }
+        }
+    }
+   
+    /**
+     * Calculates the Levenshtein distance between two strings.
+     * This metric quantifies the similarity of two strings by counting the
+     * minimum number of single-character edits (insertions, deletions, or substitutions)
+     * required to change one word into the other.
+     * @param {string} a - First string.
+     * @param {string} b - Second string.
+     * @returns {number} The edit distance.
+     */
+    function levenshteinDistance(a, b) {
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+
+        const matrix = [];
+
+        // increment along the first column of each row
+        for (let i = 0; i <= b.length; i++) {
+            matrix[i] = [i];
+        }
+
+        // increment along the first row of each column
+        for (let j = 0; j <= a.length; j++) {
+            matrix[0][j] = j;
+        }
+
+        // Fill in the rest of the matrix
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j] + 1, // deletion
+                    matrix[i][j - 1] + 1, // insertion
+                    matrix[i - 1][j - 1] + cost // substitution
+                );
+            }
+        }
+
+        return matrix[b.length][a.length];
+    }
+   
+    /**
+     * Cleans a string by removing punctuation, converting to lowercase, and normalizing spaces.
+     * This helps fix minor OCR/spelling errors before comparison.
+     * @param {string} str - The input string (e.g., "AP English-III").
+     * @returns {string} The cleaned string (e.g., "ap english iii").
+     */
+    function cleanString(str) {
+        if (!str) return '';
+        // Remove all non-alphanumeric characters (except spaces) and convert to lower case
+        // Then remove extra spaces and trim.
+        // We allow spaces and alphanumeric characters
+        return str.replace(/[^a-z0-9\s]/gi, '').toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+
+    // --- OCR FUNCTIONALITY ---
+   
+    const ocrButton = document.getElementById('ocrButton');
+    const resultDiv = document.getElementById('ocrResult');
+    const studentNameInput = document.getElementById('studentName');
+
+    /**
+     * Auto-fills the course selectors based on the parsed JSON data, prioritizing
+     * the closest match using Levenshtein distance (fuzzy matching).
+     * @param {Object} data - The structured JSON object from the Gemini API.
+     */
+    function autofillForm(data) {
+        // 1. Handle student name
+        if (data.studentName) {
+            studentNameInput.value = data.studentName;
+        }
+
+        // --- FIX: Check if the courses array exists before iterating ---
+        if (!data.courses || !Array.isArray(data.courses)) {
+            console.error("Autofill Error: Expected 'courses' array is missing or malformed in API response data:", data);
+            resultDiv.innerHTML = `
+                <p style="color: darkorange; font-weight: bold;">
+                    ⚠️ Extraction Error:
+                </p>
+                <p style="font-size: 0.9em; color: darkorange;">
+                    The course data could not be properly structured from the image.
+                    Please ensure the schedule is clearly visible or enter the courses manually.
+                </p>
+            `;
+            // Crucially, return here to prevent the crash
+            return;
+        }
+        // --- END FIX ---
+
+        // 2. Iterate through courses and apply closest matching
+        data.courses.forEach(courseEntry => {
+            const subject = courseEntry.subject;
+            const grades = ['9th', '10th', '11th', '12th'];
+
+            grades.forEach(grade => {
+                const rawCourseName = courseEntry[`${grade}_grade`] || '';
+               
+                // Clean the extracted name for robust comparison
+                const cleanExtractedName = cleanString(rawCourseName);
+
+                const selectorName = `${grade} Grade - ${subject}`;
+                const selectElement = document.querySelector(`select[name="${selectorName}"]`);
+               
+                if (selectElement) {
+                    // Check if the extracted course is empty or marked as N/A by the model
+                    if (!cleanExtractedName || cleanExtractedName === 'n a' || cleanExtractedName === 'select course') {
+                        // Action: Ensure the field is set to "N/A" if it's not explicitly selected,
+                        // to prevent leaving the disabled "Select Course" option active.
+                        if (Array.from(selectElement.options).some(opt => opt.value === 'N/A')) {
+                            selectElement.value = 'N/A';
+                            console.log(`Autofill Default: Extracted "${rawCourseName || 'Empty'}" -> Selected "N/A" for ${subject} ${grade}`);
+                        }
+                        return;
+                    }
+
+                    // Prepare options for comparison
+                    const options = Array.from(selectElement.options).filter(opt =>
+                        opt.value !== 'Select Course' && opt.value !== 'N/A'
+                    ).map(opt => ({
+                        value: opt.value,
+                        cleanText: cleanString(opt.value), // Use cleaned text for comparison
+                        text: opt.value.trim() // Original text for logging/selection
+                    }));
+
+                    let bestMatch = null;
+                    let minDistance = Infinity;
+                    // Increased threshold to 8 for very forgiving matching (handles abbreviations and spelling errors)
+                    const fuzzyThreshold = 8;
+
+                    // 1. Perform Levenshtein Distance matching (handles both partial/abbreviations and spelling correction)
+                    options.forEach(opt => {
+                        // Compare the cleaned strings
+                        const distance = levenshteinDistance(cleanExtractedName, opt.cleanText);
+                       
+                        // Find the option with the shortest distance
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestMatch = opt;
+                        }
+                    });
+
+                    // 2. Apply the best match if it's within the fuzzy threshold
+                    if (bestMatch && minDistance <= fuzzyThreshold) {
+                        selectElement.value = bestMatch.value;
+                        console.log(`Autofill Fuzzy Match: Extracted "${rawCourseName}" -> Selected "${bestMatch.value}" (Clean Distance: ${minDistance})`);
+                    } else {
+                        // 3. If no good match is found, fallback to N/A to avoid leaving the default disabled option.
+                        if (Array.from(selectElement.options).some(opt => opt.value === 'N/A')) {
+                            selectElement.value = 'N/A';
+                            console.warn(`Autofill Fallback: Extracted "${rawCourseName}" -> Selected "N/A" (No close match found. Best clean distance: ${minDistance})`);
+                        } else {
+                            console.warn(`Autofill Skip: No good match or N/A option for: "${rawCourseName}" (Subject: ${subject}, Grade: ${grade}).`);
+                        }
+                    }
+                } else {
+                    // CRITICAL LOG: This helps debug if the AI's subject mapping is wrong (e.g., outputs 'History' instead of 'Social Studies')
+                    console.error(`OCR Subject Mapping Error: Could not find a dropdown for subject "${subject}" in grade "${grade}". Check if the subject name is one of the predefined categories (English/ELA, Math, Science, Social Studies, World Language, Elective 1, Elective 2, Elective 3 (Alt.)).`);
+                }
+            });
+        });
+
+        resultDiv.innerHTML = `
+            <p style="color: green; font-weight: bold;">
+                🎉 OCR Complete! The form has been auto-filled with the extracted data using robust fuzzy matching. Please review the selections below to ensure accuracy.
+            </p>
+        `;
+    }
+
+
+    async function processOCR() {
+        ocrButton.disabled = true;
+        const fileInput = document.getElementById('ocrInput');
+        resultDiv.style.display = 'block';
+
+        if (fileInput.files.length === 0) {
+            resultDiv.innerHTML = `<p style="color: red; font-weight: bold;">⚠️ Error: Please select an image file to process.</p>`;
+            ocrButton.disabled = false;
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        resultDiv.innerHTML = `<p><span class="loader"></span> Uploading and processing image. Please wait...</p>`;
+
+        reader.onload = async function(event) {
+            const base64DataUrl = event.target.result;
+            const base64String = base64DataUrl.split(',')[1];
+            const mimeType = file.type;
+           
+            // 1. Define the required JSON structure for the course data
+            const responseSchema = {
+                type: "OBJECT",
+                properties: {
+                    studentName: { "type": "STRING", "description": "Full name of the student." },
+                    courses: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                subject: { "type": "STRING", "description": "Subject category (e.g., English/ELA, Math, Science, Elective 1). Always map extracted subjects to one of these predefined categories: English/ELA, Math, Science, Social Studies, World Language, Elective 1, Elective 2, Elective 3 (Alt.)." },
+                                "9th_grade": { "type": "STRING", "description": "Course name for 9th grade (e.g., Algebra I or N/A)" },
+                                "10th_grade": { "type": "STRING", "description": "Course name for 10th grade (e.g., Geometry or N/A)" },
+                                "11th_grade": { "type": "STRING", "description": "Course name for 11th grade (e.g., Pre-Calculus or N/A)" },
+                                "12th_grade": { "type": "STRING", "description": "Course name for 12th grade (e.g., AP Statistics or N/A)" }
+                            },
+                            required: ["subject", "9th_grade", "10th_grade", "11th_grade", "12th_grade"]
+                        }
+                    }
+                }
+            };
+
+            // 2. Define the prompt and payload for the API call
+            const subjectNames = subjects.map(s => s.name).join(', ');
+            const userPrompt = `You are a specialized OCR tool. Analyze the high school course plan/schedule image. Extract the student's name and the 4-year course plan. Match the extracted subjects to the following categories: ${subjectNames}. Return the data as a single JSON object matching the provided schema. If a course is not present for a grade, use "N/A".`;
+           
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: userPrompt },
+                        { inlineData: { mimeType: mimeType, data: base64String } }
+                    ]
+                }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: responseSchema
+                }
+            };
+
+            try {
+                resultDiv.innerHTML = `<p><span class="loader"></span> Analyzing image and extracting data...</p>`;
+               
+                const responseData = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const candidate = responseData.candidates?.[0];
+                const jsonText = candidate?.content?.parts?.[0]?.text;
+
+                if (jsonText) {
+                    const parsedData = JSON.parse(jsonText);
+                    console.log("OCR Data Successfully Parsed:", parsedData); // Log the data
+                    autofillForm(parsedData);
+                } else {
+                    throw new Error("API response was empty or incorrectly formatted. Check the console for full response data.");
+                }
+
+            } catch (error) {
+                console.error('Gemini API Error:', error);
+               
+                // Show a more descriptive error message in the UI
+                resultDiv.innerHTML = `
+                    <p style="color: darkred; font-weight: bold;">
+                        ❌ OCR Failed:
+                    </p>
+                    <p style="font-size: 0.9em; color: darkred;">
+                        An error occurred while communicating with the image analysis service.
+                        <br>
+                        <strong style="color: darkred;">Error Detail:</strong> ${error.message}
+                    </p>
+                    <p style="font-size: 0.8em; color: #555;">(Check the browser Console (F12) for detailed network status and API response body.)</p>
+                `;
+            } finally {
+                ocrButton.disabled = false;
+            }
+        };
+
+        reader.onerror = function() {
+            resultDiv.innerHTML = `<p style="color: red; font-weight: bold;">Error reading file.</p>`;
+            ocrButton.disabled = false;
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    // --- MANUAL ENTRY FORM LOGIC ---
+
+    const planTableBody = document.getElementById('planTableBody');
+   
+    // **NEW STRUCTURE: Courses are categorized for filtered dropdown menus.**
+    // Note: The OCR system dynamically reads the options from the generated dropdowns.
+    const courseCategories = {
+        'Core': ["Select Course", "N/A"], // Base options for all dropdowns
+        'English/ELA': [
+            "English I", "English II", "English III", "English IV",
+            "AP English Language", "AP English Comp", "AP English Lit",
+            "Journalism", "Yearbook"
+        ],
+        'Math': [
+            "Algebra I", "Algebra II", "Geometry", "Precalculus", "Mathematical Modeling",
+            "AP Calculus AB", "AP Calculus BC", "AP Statistics", "AP Precalculus",
+            "ACT Prep (1 sem)"
+        ],
+        'Science': [
+            "Biology", "Chemistry", "Physics", "Advanced Physics",
+            "Earth and Space Science", "Environmental Science",
+            "Human Anatomy & Physiology", "Human Body Struct. & Funct.",
+            "Forensic Science & Crime SC Invest",
+            "AP Biology", "AP Chemistry", "AP Environmental Science", "AP Physics",
+        ],
+        'Social Studies': [
+            "US History", "Gov/Econ", // Gov/Econ combined option
+            "US Government (1 sem)", "Economics (1 sem)",
+            "AP US History", "AP US Government", "AP European History",
+            "Psychology", "AP Psychology",
+            "Survey of the New Testament (Fall)", "Survey of the Old Testament (Spring)" // Religious/History Elective
+        ],
+        'World Language': [
+            "Spanish 1", "Spanish 2", "Spanish 3", "Spanish 4",
+        ],
+        // The following courses are available for Elective 1, Elective 2, and Elective 3 (Alt.)
+        'Electives': [
+            "2-D Art Design", "3-D Art Design", "Art I", "Studio Art",
+            "Visual Arts I", "Visual Arts II", "Visual Arts III", "Visual Arts IV",
+            "Band", "Chorus", "Concert Band (Fall/Spring)", "Concert Choir (1 sem)", "Music Theory", "Vocal Tech", "AP Music Theory",
+            "Theatre", "Theatre I", "Theatre II", "Theatre III", "Theatre IV",
+            "Beginning Kinesiology (Girls PE)", "Beginning Kinesiology (Boys PE)",
+            "PE (Personal Fitness)", "Baseball Conditioning (Zero Period)", "Varsity Football Conditioning (Zero Period)",
+            "Golf G", "Golf B", "Soccer G", "Soccer B", "Softball", "Tennis", "Track (Spring)", "Wrestling",
+            "Varsity Baseball", "Varsity Basketball", "Varsity Football", "Varsity Volleyball",
+            "Cheerleading", "Cross Country (Fall)",
+            "Health Education", "Health (1 sem)", "Health (0.5 credit)",
+            "Career Prep", "Personal Finance",
+            "Digital Media Design",
+            "Business Software Applications I", "Business Software Applications II",
+            "Banking and Financial Services", "Marketing Principles (CP-A)", "Sports and Entertainment Marketing Fund",
+            "Fundamentals of Agriscience (CP-A)", "Applied Agriscience", "Intermediate Agriscience", "Advanced Agriscience",
+            "Education and Training Foundations (CP-A)", "Education and Train. Internship (2 hrs)",
+            "Teaching I - Elementary", "Teaching I - Secondary", "Teaching II",
+            "Health Science Internship (2 hours)", "Pharmacy Technician", "Sports Medicine Fundamentals",
+            "Introduction to Engineering Design PLTW", "Principles of Engineering- PLTW", "Engineering Essentials (CP-A)",
+            "Cybersecurity- PLTW", "Comp Sci A", "Comp Sci Principles", "Intro to Computer Science- TEALS", "Robotics (CP-A)",
+            "Applications of Engineering and Technology", "Archit. Computer Aided Design (1 sem)", "Introduction to Manufacturing/Workforce",
+            "Civil Air Patrol I", "Civil Air Patrol II", "Civil Air Patrol III", "Civil Air Patrol IV", "Civil Air Patrol V",
+            "Cooperative Ed WBL (2 hrs)", "Cooperative Ed WBL (3 hrs)",
+            "CTE Lab in BMA", "CTE Lab in Education and Training", "CTE Lab in Finance", "CTE Lab in Health Science",
+            "Driver and Traffic Safety Ed",
+            "Equipment and Training Foundations",
+            "Family and Consumer Sciences",
+            "Guidance Aide", "IRC Peer Aide", "Library Aide", "Office Aide",
+            "Intro to Law and General Legal Systems (CP-A)",
+            "Online Dual Enrollment",
+            "AP Research", "AP Seminar",
+            "ACCESS (Core Classes)"
+        ]
+    };
+
+    const subjects = [
+        { name: "English/ELA", required: true },
+        { name: "Math", required: true },
+        { name: "Science", required: true },
+        { name: "Social Studies", required: true },
+        { name: "World Language", required: false },
+        { name: "Elective 1", required: false },
+        { name: "Elective 2", required: false },
+        { name: "Elective 3 (Alt.)", required: false }
+    ];
+
+    /**
+     * Filters the master course list based on the subject category name.
+     * Elective slots all pull from the 'Electives' pool.
+     * @param {string} subjectName - The subject category name (e.g., 'English/ELA').
+     * @returns {string[]} An array of filtered course names.
+     */
+    function getCoursesForSubject(subjectName) {
+        let categoryKey = subjectName;
+
+        // Map all 'Elective' variations to the single 'Electives' key
+        if (subjectName.startsWith('Elective')) {
+            categoryKey = 'Electives';
+        }
+
+        const baseOptions = courseCategories['Core'];
+        const subjectSpecificOptions = courseCategories[categoryKey] || [];
+
+        // Combine base options ("Select Course", "N/A") with subject-specific courses
+        // and sort alphabetically (keeping base options at the top).
+        return [...baseOptions, ...subjectSpecificOptions].sort((a, b) => {
+            if (a === "Select Course") return -1;
+            if (a === "N/A" && b !== "Select Course") return -1;
+            if (b === "Select Course" || b === "N/A") return 1;
+            return a.localeCompare(b);
+        });
+    }
+
+
+    function createCourseSelector(subjectName, grade) {
+        const select = document.createElement('select');
+        select.name = `${grade} Grade - ${subjectName}`;
+        // Only core subjects are marked as required on the front-end
+        const isCore = (subjectName.includes("English") || subjectName.includes("Math") || subjectName.includes("Science") || subjectName.includes("Social Studies"));
+        select.required = isCore;
+        select.classList.add('course-select');
+
+        // Use the new filtering function to get relevant options
+        const relevantCourses = getCoursesForSubject(subjectName);
+
+        relevantCourses.forEach(course => {
+            const option = document.createElement('option');
+            option.value = course;
+            option.textContent = course;
+            if (course === "Select Course") {
+                option.disabled = true;
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+        return select;
+    }
+
+    function buildPlanTable() {
+        subjects.forEach(subject => {
+            const row = document.createElement('div');
+            row.classList.add('class-row');
+
+            // Subject Label
+            const label = document.createElement('label');
+            label.textContent = subject.name;
+            if (subject.required) {
+                label.innerHTML += ' <span style="color: red; font-size: 0.8em;">(Req)</span>';
+            }
+            row.appendChild(label);
+
+            // Grade Selectors
+            ['9th', '10th', '11th', '12th'].forEach(grade => {
+                const col = document.createElement('div');
+                col.appendChild(createCourseSelector(subject.name, grade));
+                row.appendChild(col);
+            });
+
+            planTableBody.appendChild(row);
+        });
+    }
+
+    // Initialize the table when the script runs
+    buildPlanTable();
+   
+    // --- Formspree Success Handling (Unchanged) ---
+    const form = document.getElementById('courseForm');
+    const successMessage = document.getElementById('formSuccessMessage');
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+       
+        // This part collects data for the email summary (kept simple for Formspree)
+        let summaryText = "4-Year Plan Summary:\n\n";
+        const formElements = form.elements;
+        for (let i = 0; i < formElements.length; i++) {
+            const el = formElements[i];
+            if (el.name && el.value && el.type !== 'submit' && el.type !== 'reset') {
+                summaryText += `${el.name}: ${el.value}\n`;
+            }
+        }
+       
+        // Formspree submission
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                form.reset();
+                successMessage.style.display = 'block';
+                setTimeout(() => { successMessage.style.display = 'none'; }, 5000);
+            } else {
+                // Use a custom message box instead of alert() in a real app
+                console.error("Formspree Error:", await response.json());
+                // Using console log instead of alert to adhere to guidelines
+                console.error("An error occurred during submission. Check the console for details.");
+            }
+        } catch (error) {
+            console.error('Form submission failed:', error);
+            // Using console log instead of alert to adhere to guidelines
+            console.error("A network error occurred. Please check your connection.");
+           
+        }
+    });
+</script>
+
+</body>
+</html>
